@@ -110,7 +110,7 @@ bool init_opengl(const int &width, const int &height)
 	uniforms.ssao.weight_by_angle = glGetUniformLocation(ssao.get_program(), "weight_by_angle");
 	uniforms.ssao.randomize_points = glGetUniformLocation(ssao.get_program(), "randomize_points");
 	uniforms.ssao.point_count = glGetUniformLocation(ssao.get_program(), "point_count");
-	uniforms.ssao.background_colour = glGetUniformLocation(ssao.get_program(), "background_colour");
+
 	
 
 	ssao_level = 1.0f;
@@ -360,6 +360,108 @@ void draw_mesh(void)
 }
 
 
+void draw_axis(void)
+{
+	unsigned int axis_buffer = 0;
+	glGenBuffers(1, &axis_buffer);
+
+	glLineWidth(2.0);
+
+	glUseProgram(flat.get_program());
+
+	main_camera.calculate_camera_matrices(win_x, win_y);
+	glUniformMatrix4fv(uniforms.flat.proj_matrix, 1, GL_FALSE, &main_camera.projection_mat[0][0]);
+	glUniformMatrix4fv(uniforms.flat.mv_matrix, 1, GL_FALSE, &main_camera.view_mat[0][0]);
+
+	const GLuint components_per_vertex = 3;
+	const GLuint components_per_position = 3;
+
+	vector<GLfloat> flat_data;
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+
+	glUniform3f(uniforms.flat.flat_colour, 1.0, 0.0, 0.0);
+
+	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	flat_data.clear();
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+	flat_data.push_back(0);
+
+	glUniform3f(uniforms.flat.flat_colour, 0.0, 1.0, 0.0);
+
+	//glDeleteBuffers(1, &axis_buffer);
+	//glGenBuffers(1, &axis_buffer);
+
+	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	flat_data.clear();
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+
+	glUniform3f(uniforms.flat.flat_colour, 0.0, 0.0, 1.0);
+
+	//glDeleteBuffers(1, &axis_buffer);
+	//glGenBuffers(1, &axis_buffer);
+
+	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	glDeleteBuffers(1, &axis_buffer);
+}
 
 
 void display_func(void)
@@ -368,18 +470,20 @@ void display_func(void)
 
 	glUseProgram(render.get_program());
 
-	const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	const GLfloat background_colour[] = { 1.0f, 0.5f, 0.0f, 0.0f };
 	static const GLfloat one = 1.0f;
 	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
 	glEnable(GL_DEPTH_TEST);
 
-	glClearBufferfv(GL_COLOR, 0, black);
-	glClearBufferfv(GL_COLOR, 1, black);
+	glClearBufferfv(GL_COLOR, 0, background_colour);
+	glClearBufferfv(GL_COLOR, 1, background_colour);
 	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, points_buffer);
+
+	draw_axis();
 
 	draw_mesh();
 
@@ -392,8 +496,6 @@ void display_func(void)
 	glUniform1i(uniforms.ssao.weight_by_angle, weight_by_angle ? 1 : 0);
 	glUniform1i(uniforms.ssao.randomize_points, randomize_points ? 1 : 0);
 	glUniform1ui(uniforms.ssao.point_count, point_count);
-
-	glUniform4f(uniforms.ssao.background_colour, 1.0, 0.5, 0.0, 1.0);
 
 
 	glActiveTexture(GL_TEXTURE0);

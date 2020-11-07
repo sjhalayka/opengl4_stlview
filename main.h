@@ -98,7 +98,6 @@ struct
 		GLint           weight_by_angle;
 		GLint           randomize_points;
 		GLint           point_count;
-		GLint			background_colour;
 	} ssao;
 
 	struct

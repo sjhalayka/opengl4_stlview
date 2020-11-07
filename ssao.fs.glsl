@@ -37,7 +37,7 @@ void main(void)
     
     if(my_depth <= 1.0)
     {
-        colour = background_colour;
+        colour = textureLod(sColor, P, 0);
         return;
     }
 
@@ -115,5 +115,5 @@ void main(void)
 
     // Mix in ambient color scaled by SSAO level
     colour = object_level * object_color +
-            mix(vec4(0.0), vec4(background_colour*ao_amount), ssao_level);
+            mix(vec4(0.0), vec4(ao_amount), ssao_level);
 }
