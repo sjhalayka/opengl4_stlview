@@ -113,6 +113,9 @@ bool init_opengl(const int &width, const int &height)
 
 	
 
+
+
+
 	ssao_level = 1.0f;
 	ssao_radius = 0.05f;
 	show_shading = true;
@@ -126,17 +129,17 @@ bool init_opengl(const int &width, const int &height)
 	glGenTextures(3, fbo_textures);
 
 	glBindTexture(GL_TEXTURE_2D, fbo_textures[0]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB16F, 2048, 2048);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB16F, win_x, win_y);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glBindTexture(GL_TEXTURE_2D, fbo_textures[1]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, 2048, 2048);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	glBindTexture(GL_TEXTURE_2D, fbo_textures[2]);
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, 2048, 2048);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -201,6 +204,38 @@ void reshape_func(int width, int height)
 	glutSetWindow(win_id);
 	glutReshapeWindow(win_x, win_y);
 	glViewport(0, 0, win_x, win_y);
+
+	glDeleteFramebuffers(1, &render_fbo);
+	glGenFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+
+	glDeleteTextures(3, fbo_textures);
+	glGenTextures(3, fbo_textures);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_textures[0]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB16F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_textures[1]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_textures[2]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, win_x, win_y);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo_textures[0], 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, fbo_textures[1], 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fbo_textures[2], 0);
+
+	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+	glDrawBuffers(2, draw_buffers);
 }
 
 void draw_dot(void)
