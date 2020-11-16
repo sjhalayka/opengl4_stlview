@@ -2,6 +2,20 @@
 #include "mesh.h"
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int main(int argc, char **argv)
 {
 	if(argc != 2)
@@ -287,7 +301,7 @@ void draw_mesh(void)
 {
 	glUseProgram(render.get_program());
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
+
 	glUniformMatrix4fv(uniforms.render.proj_matrix, 1, GL_FALSE, &main_camera.projection_mat[0][0]);
 	glUniformMatrix4fv(uniforms.render.mv_matrix, 1, GL_FALSE, &main_camera.view_mat[0][0]);
 	glUniform1f(uniforms.render.shading_level, 1.0f);
@@ -404,7 +418,6 @@ void draw_axis(void)
 
 	glUseProgram(flat.get_program());
 
-	main_camera.calculate_camera_matrices(win_x, win_y);
 	glUniformMatrix4fv(uniforms.flat.proj_matrix, 1, GL_FALSE, &main_camera.projection_mat[0][0]);
 	glUniformMatrix4fv(uniforms.flat.mv_matrix, 1, GL_FALSE, &main_camera.view_mat[0][0]);
 
@@ -503,6 +516,9 @@ void display_func(void)
 {
 	glEnable(GL_DEPTH_TEST);
 
+	if (false == screenshot_mode)
+		main_camera.calculate_camera_matrices(win_x, win_y);
+
 	glUseProgram(render.get_program());
 
 	const GLfloat background_colour[] = { 1.0f, 0.5f, 0.0f, 0.0f };
@@ -547,13 +563,14 @@ void display_func(void)
 	glDeleteVertexArrays(1, &quad_vao);
 
 
-	draw_dot();
+//	draw_dot();
 
 
-
-
-	glFlush();
-	glutSwapBuffers();
+	if (false == screenshot_mode)
+	{
+		glFlush();
+		glutSwapBuffers();
+	}
 }
 
 void keyboard_func(unsigned char key, int x, int y)
@@ -561,7 +578,10 @@ void keyboard_func(unsigned char key, int x, int y)
 	switch(tolower(key))
 	{
 	case 'a':
+	{
+		take_screenshot(4, "screenshot.tga");
 		break;
+	}
 
 	default:
 		break;

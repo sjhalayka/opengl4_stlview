@@ -58,6 +58,58 @@ protected:
 	void reset(void);
 	void rotate(void);
 	void translate(void);
+
+
+
+public:
+	void Set_Large_Screenshot(size_t num_cams, size_t cam_index_x, size_t cam_index_y)
+	{
+		// No guarantees about the behaviour of this functionality. It wasn't tested a lot.
+
+		//glMatrixMode(GL_PROJECTION);
+		//glLoadIdentity();
+
+		// Image plane reference:
+		// http://www.songho.ca/opengl/gl_transform.html
+		const float deg_to_rad = (1.0f / 360.0f) * 2.0f * glm::pi<float>();
+		float aspect = float(win_x) / float(win_y);
+		float tangent = tanf((fov / 2.0f) * deg_to_rad);
+		float height = near_plane * tangent; // Half height of near_plane plane.
+		float width = height * aspect; // Half width of near_plane plane.
+
+		float cam_width = 2 * width / num_cams;
+		float cam_height = 2 * height / num_cams;
+
+		float left = -width + cam_index_x * cam_width;
+		float right = -width + (cam_index_x + 1) * cam_width;
+		float bottom = -height + cam_index_y * cam_height;
+		float top = -height + (cam_index_y + 1) * cam_height;
+
+
+		model_mat = glm::mat4(1.0f);
+
+		projection_mat = frustum(left, right, bottom, top, near_plane, far_plane);
+
+		view_mat = lookAt(
+			eye,
+			look_at,
+			up
+		);
+
+
+		//mat4x4 f = 
+		//// Instead of gluPerspective...
+		//glFrustum(left, right, bottom, top, near_plane, far_plane);
+
+		//gluLookAt(
+		//	eye.x, eye.y, eye.z, // Eye position.
+		//	eye.x + look_at.x, eye.y + look_at.y, eye.z + look_at.z, // Look at position (not direction).
+		//	up.x, up.y, up.z); // Up direction vector.
+	}
+
+
+
+
 };
 
 
