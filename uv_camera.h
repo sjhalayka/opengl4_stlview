@@ -66,11 +66,6 @@ public:
 	{
 		// No guarantees about the behaviour of this functionality. It wasn't tested a lot.
 
-		//glMatrixMode(GL_PROJECTION);
-		//glLoadIdentity();
-
-		// Image plane reference:
-		// http://www.songho.ca/opengl/gl_transform.html
 		const float deg_to_rad = (1.0f / 360.0f) * 2.0f * glm::pi<float>();
 		float aspect = float(win_x) / float(win_y);
 		float tangent = tanf((fov / 2.0f) * deg_to_rad);
@@ -88,23 +83,19 @@ public:
 
 		model_mat = glm::mat4(1.0f);
 
-		projection_mat = frustum(left, right, bottom, top, near_plane, far_plane);
+		projection_mat = frustum(
+			left, 
+			right, 
+			bottom, 
+			top, 
+			near_plane, 
+			far_plane);
 
 		view_mat = lookAt(
 			eye,
 			look_at,
 			up
 		);
-
-
-		//mat4x4 f = 
-		//// Instead of gluPerspective...
-		//glFrustum(left, right, bottom, top, near_plane, far_plane);
-
-		//gluLookAt(
-		//	eye.x, eye.y, eye.z, // Eye position.
-		//	eye.x + look_at.x, eye.y + look_at.y, eye.z + look_at.z, // Look at position (not direction).
-		//	up.x, up.y, up.z); // Up direction vector.
 	}
 
 
