@@ -62,8 +62,12 @@ protected:
 
 
 public:
-	void Set_Large_Screenshot(size_t num_cams, size_t cam_index_x, size_t cam_index_y)
+	void Set_Large_Screenshot(size_t num_cams, size_t cam_index_x, size_t cam_index_y, const int width_px, const int height_px)
 	{
+
+		win_x = width_px;
+		win_y = height_px;
+
 		// No guarantees about the behaviour of this functionality. It wasn't tested a lot.
 
 		const float deg_to_rad = (1.0f / 360.0f) * 2.0f * glm::pi<float>();

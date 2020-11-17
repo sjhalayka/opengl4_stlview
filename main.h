@@ -58,7 +58,7 @@ vertex_fragment_shader ssao;
 uv_camera main_camera;
 
 GLint win_id = 0;
-GLint win_x = 800, win_y = 600;
+GLint win_x = 800, win_y = 450;
 
 float u_spacer = 0.01f;
 float v_spacer = 0.5f*u_spacer;
@@ -216,7 +216,7 @@ void take_screenshot(size_t num_cams_wide, const char* filename, const bool reve
 			cout << "Camera: " << cam_count + 1 << " of " << total_cams << endl;
 
 			// Set up camera, draw, then copy the frame buffer.
-			main_camera.Set_Large_Screenshot(num_cams_wide, cam_num_x, cam_num_y);
+			main_camera.Set_Large_Screenshot(num_cams_wide, cam_num_x, cam_num_y, win_x, win_y);
 
 
 

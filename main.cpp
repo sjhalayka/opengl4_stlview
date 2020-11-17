@@ -250,6 +250,10 @@ void reshape_func(int width, int height)
 	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
 	glDrawBuffers(2, draw_buffers);
+
+
+	main_camera.win_x = win_x;
+	main_camera.win_y = win_y;
 }
 
 void draw_dot(void)
@@ -565,10 +569,10 @@ void display_func(void)
 
 //	draw_dot();
 
+	glFlush();
 
 	if (false == screenshot_mode)
 	{
-		glFlush();
 		glutSwapBuffers();
 	}
 }
@@ -579,7 +583,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	{
 	case 'a':
 	{
-		take_screenshot(4, "screenshot.tga");
+		take_screenshot(6, "screenshot.tga");
 		break;
 	}
 
