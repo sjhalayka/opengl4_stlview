@@ -419,8 +419,7 @@ void display_func(void)
 {
 	glEnable(GL_DEPTH_TEST);
 
-	if (false == screenshot_mode)
-		main_camera.calculate_camera_matrices(win_x, win_y);
+	main_camera.calculate_camera_matrices(win_x, win_y);
 
 	glUseProgram(render.get_program());
 
@@ -466,14 +465,10 @@ void display_func(void)
 	glDeleteVertexArrays(1, &quad_vao);
 
 
-//	draw_dot();
+	//	draw_dot();
 
 	glFlush();
-
-	if (false == screenshot_mode)
-	{
-		glutSwapBuffers();
-	}
+	glutSwapBuffers();
 }
 
 void keyboard_func(unsigned char key, int x, int y)
