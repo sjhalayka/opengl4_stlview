@@ -377,7 +377,7 @@ void take_screenshot2(size_t num_cams_wide, const char* filename)
 
 	if (!out.is_open())
 	{
-		cout << "Failed to open TGA file for writing: attachment.tga" << endl;
+		cout << "Failed to open TGA file for writing: " << filename << << endl;
 		return;
 	}
 
