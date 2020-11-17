@@ -145,6 +145,107 @@ static inline float random_float()
 
 
 
+void draw_axis(void)
+{
+	unsigned int axis_buffer = 0;
+	glGenBuffers(1, &axis_buffer);
+
+	glLineWidth(2.0);
+
+	glUseProgram(flat.get_program());
+
+	glUniformMatrix4fv(uniforms.flat.proj_matrix, 1, GL_FALSE, &main_camera.projection_mat[0][0]);
+	glUniformMatrix4fv(uniforms.flat.mv_matrix, 1, GL_FALSE, &main_camera.view_mat[0][0]);
+
+	const GLuint components_per_vertex = 3;
+	const GLuint components_per_position = 3;
+
+	vector<GLfloat> flat_data;
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+
+	glUniform3f(uniforms.flat.flat_colour, 1.0, 0.0, 0.0);
+
+	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	flat_data.clear();
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+	flat_data.push_back(0);
+
+	glUniform3f(uniforms.flat.flat_colour, 0.0, 1.0, 0.0);
+
+	//glDeleteBuffers(1, &axis_buffer);
+	//glGenBuffers(1, &axis_buffer);
+
+	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	flat_data.clear();
+
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(0);
+	flat_data.push_back(2);
+
+	glUniform3f(uniforms.flat.flat_colour, 0.0, 0.0, 1.0);
+
+	//glDeleteBuffers(1, &axis_buffer);
+	//glGenBuffers(1, &axis_buffer);
+
+	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
+
+	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
+	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
+	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
+		components_per_position,
+		GL_FLOAT,
+		GL_FALSE,
+		components_per_vertex * sizeof(GLfloat),
+		NULL);
+
+	glDrawArrays(GL_LINES, 0, num_vertices);
+
+	glDeleteBuffers(1, &axis_buffer);
+}
 
 vec3 screen_coords_to_world_coords(const int x, const int y, const int screen_width, const int screen_height)
 {
@@ -170,6 +271,140 @@ vec3 screen_coords_to_world_coords(const int x, const int y, const int screen_wi
 	return ret_dir;
 }
 
+
+void take_screenshot2(size_t num_cams_wide, const char* filename)
+{
+	size_t ss_width = win_x * num_cams_wide;
+	size_t ss_height = win_y * num_cams_wide;
+
+	glViewport(0, 0, ss_width, ss_height);
+
+	GLuint      fbo = 0;
+	GLuint      fbo_tex[3] = { 0, 0, 0 };
+
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	glGenTextures(3, fbo_tex);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_tex[0]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, ss_width, ss_height);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_tex[1]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32F, ss_width, ss_height);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	glBindTexture(GL_TEXTURE_2D, fbo_tex[2]);
+	glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH_COMPONENT32F, ss_width, ss_height);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, fbo_tex[0], 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, fbo_tex[1], 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fbo_tex[2], 0);
+
+	static const GLenum draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+
+	glDrawBuffers(2, draw_buffers);
+
+	glEnable(GL_DEPTH_TEST);
+
+	if (false == screenshot_mode)
+		main_camera.calculate_camera_matrices(win_x, win_y);
+
+	glUseProgram(render.get_program());
+
+	const GLfloat background_colour[] = { 1.0f, 0.5f, 0.0f, 0.0f };
+	static const GLfloat one = 1.0f;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	glEnable(GL_DEPTH_TEST);
+
+	glClearBufferfv(GL_COLOR, 0, background_colour);
+	glClearBufferfv(GL_COLOR, 1, background_colour);
+	glClearBufferfv(GL_DEPTH, 0, &one);
+
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, points_buffer);
+
+	draw_axis();
+	draw_mesh();
+
+	vector<unsigned char> output_pixels(ss_width * ss_height * 3);
+
+	glReadBuffer(GL_COLOR_ATTACHMENT0);
+	glReadPixels(0, 0, ss_width, ss_height, GL_RGB, GL_UNSIGNED_BYTE, &output_pixels[0]);
+
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+	// Set up Targa TGA image data.
+	unsigned char  idlength = 0;
+	unsigned char  colourmaptype = 0;
+	unsigned char  datatypecode = 2;
+	unsigned short int colourmaporigin = 0;
+	unsigned short int colourmaplength = 0;
+	unsigned char  colourmapdepth = 0;
+	unsigned short int x_origin = 0;
+	unsigned short int y_origin = 0;
+
+	unsigned short int px = ss_width;
+	unsigned short int py = ss_height;
+	unsigned char  bitsperpixel = 24;
+	unsigned char  imagedescriptor = 0;
+	vector<char> idstring;
+
+		for (size_t i = 0; i < ss_width; i++)
+		{
+			for (size_t j = 0; j < ss_height; j++)
+			{
+				size_t index = 3 * (j * ss_width + i);
+
+				unsigned char temp_char;
+				temp_char = output_pixels[index + 0];
+				output_pixels[index + 0] = output_pixels[index + 2];
+				output_pixels[index + 2] = temp_char;
+			}
+		}
+
+	// Write Targa TGA file to disk.
+	ofstream out(filename, ios::binary);
+
+	if (!out.is_open())
+	{
+		cout << "Failed to open TGA file for writing: attachment.tga" << endl;
+		return;
+	}
+
+	out.write(reinterpret_cast<char*>(&idlength), 1);
+	out.write(reinterpret_cast<char*>(&colourmaptype), 1);
+	out.write(reinterpret_cast<char*>(&datatypecode), 1);
+	out.write(reinterpret_cast<char*>(&colourmaporigin), 2);
+	out.write(reinterpret_cast<char*>(&colourmaplength), 2);
+	out.write(reinterpret_cast<char*>(&colourmapdepth), 1);
+	out.write(reinterpret_cast<char*>(&x_origin), 2);
+	out.write(reinterpret_cast<char*>(&y_origin), 2);
+	out.write(reinterpret_cast<char*>(&px), 2);
+	out.write(reinterpret_cast<char*>(&py), 2);
+	out.write(reinterpret_cast<char*>(&bitsperpixel), 1);
+	out.write(reinterpret_cast<char*>(&imagedescriptor), 1);
+
+	out.write(reinterpret_cast<char*>(&output_pixels[0]), ss_width * ss_height * 3 * sizeof(unsigned char));
+
+	out.close();
+
+
+	glViewport(0, 0, win_x, win_y);
+
+
+	glDeleteFramebuffers(1, &fbo);
+	glDeleteTextures(3, fbo_tex);
+}
 
 
 void take_screenshot(size_t num_cams_wide, const char* filename, const bool reverse_rows = false)

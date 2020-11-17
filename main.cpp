@@ -413,107 +413,6 @@ void draw_mesh(void)
 }
 
 
-void draw_axis(void)
-{
-	unsigned int axis_buffer = 0;
-	glGenBuffers(1, &axis_buffer);
-
-	glLineWidth(2.0);
-
-	glUseProgram(flat.get_program());
-
-	glUniformMatrix4fv(uniforms.flat.proj_matrix, 1, GL_FALSE, &main_camera.projection_mat[0][0]);
-	glUniformMatrix4fv(uniforms.flat.mv_matrix, 1, GL_FALSE, &main_camera.view_mat[0][0]);
-
-	const GLuint components_per_vertex = 3;
-	const GLuint components_per_position = 3;
-
-	vector<GLfloat> flat_data;
-
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(2);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-
-	glUniform3f(uniforms.flat.flat_colour, 1.0, 0.0, 0.0);
-
-	GLuint num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
-
-	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
-	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
-	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
-		components_per_position,
-		GL_FLOAT,
-		GL_FALSE,
-		components_per_vertex * sizeof(GLfloat),
-		NULL);
-
-	glDrawArrays(GL_LINES, 0, num_vertices);
-
-	flat_data.clear();
-
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(2);
-	flat_data.push_back(0);
-
-	glUniform3f(uniforms.flat.flat_colour, 0.0, 1.0, 0.0);
-
-	//glDeleteBuffers(1, &axis_buffer);
-	//glGenBuffers(1, &axis_buffer);
-
-	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
-
-	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
-	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
-	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
-		components_per_position,
-		GL_FLOAT,
-		GL_FALSE,
-		components_per_vertex * sizeof(GLfloat),
-		NULL);
-
-	glDrawArrays(GL_LINES, 0, num_vertices);
-
-	flat_data.clear();
-
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(0);
-	flat_data.push_back(2);
-
-	glUniform3f(uniforms.flat.flat_colour, 0.0, 0.0, 1.0);
-
-	//glDeleteBuffers(1, &axis_buffer);
-	//glGenBuffers(1, &axis_buffer);
-
-	num_vertices = static_cast<GLuint>(flat_data.size()) / components_per_vertex;
-
-	glBindBuffer(GL_ARRAY_BUFFER, axis_buffer);
-	glBufferData(GL_ARRAY_BUFFER, flat_data.size() * sizeof(GLfloat), &flat_data[0], GL_DYNAMIC_DRAW);
-
-	glEnableVertexAttribArray(glGetAttribLocation(render.get_program(), "position"));
-	glVertexAttribPointer(glGetAttribLocation(render.get_program(), "position"),
-		components_per_position,
-		GL_FLOAT,
-		GL_FALSE,
-		components_per_vertex * sizeof(GLfloat),
-		NULL);
-
-	glDrawArrays(GL_LINES, 0, num_vertices);
-
-	glDeleteBuffers(1, &axis_buffer);
-}
 
 
 void display_func(void)
@@ -583,7 +482,7 @@ void keyboard_func(unsigned char key, int x, int y)
 	{
 	case 'a':
 	{
-		take_screenshot(6, "screenshot.tga");
+		take_screenshot2(4, "screenshot.tga");
 		break;
 	}
 
